@@ -11,9 +11,9 @@ class PixelAdventure extends FlameGame with HasKeyboardHandlerComponents {
   @override
   Color backgroundColor() => Color(0xff211f30);
   late final CameraComponent cam;
-  Player player = Player(character: "Pink Man");
+  Player player = Player();
   late JoystickComponent joystick;
-  bool showJoystick = true;
+  bool showJoystick = false;
 
   @override
   FutureOr<void> onLoad() async {
@@ -54,15 +54,15 @@ class PixelAdventure extends FlameGame with HasKeyboardHandlerComponents {
       case JoystickDirection.left:
       case JoystickDirection.upLeft:
       case JoystickDirection.downLeft:
-        player.playerDirection = PlayerDirection.left;
+        player.horizontalMovement = -1;
         break;
       case JoystickDirection.right:
       case JoystickDirection.upRight:
       case JoystickDirection.downRight:
-        player.playerDirection = PlayerDirection.right;
+        player.horizontalMovement = 1;
         break;
       default:
-        player.playerDirection = PlayerDirection.none;
+        player.horizontalMovement = 0;
         break;
     }
   }
