@@ -9,11 +9,11 @@
     ],
     "fileStates": {
         "Level-01.tmx": {
-            "scale": 1.1005,
-            "selectedLayer": 0,
+            "scale": 1.7386,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 206.26987732848704,
-                "y": 198.09177646524302
+                "x": 309.4443805360635,
+                "y": 188.6575405498677
             }
         },
         "Pixel Adventure.tsx": {
@@ -32,6 +32,7 @@
         "Level-01.tmx"
     ],
     "project": "Pixed Adventure.tiled-project",
+    "property.type": "int",
     "recentFiles": [
         "Pixel Adventure.tsx",
         "Level-01.tmx"
