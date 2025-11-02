@@ -17,6 +17,9 @@ class PixelAdventure extends FlameGame
   late CameraComponent cam;
   Player player = Player();
   bool showControls = true;
+  bool playSounds = true;
+  double soundVolume = 1.0;
+
   List<String> levelNames = ["Level-01", "Level-01"];
   int currentLevelIndex = 0;
 
@@ -37,6 +40,8 @@ class PixelAdventure extends FlameGame
       _loadLevel();
     } else {
       // no more levels
+      currentLevelIndex = 0;
+      _loadLevel();
     }
   }
 

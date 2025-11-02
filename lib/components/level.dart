@@ -45,6 +45,7 @@ class Level extends World with HasGameReference<PixelAdventure> {
         switch (spawnPoint.class_) {
           case 'Player':
             player.position = Vector2(spawnPoint.x, spawnPoint.y);
+            player.scale.x = 1;
             add(player);
             break;
           case 'Fruit':
