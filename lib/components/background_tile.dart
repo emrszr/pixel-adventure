@@ -8,7 +8,7 @@ class BackgroundTile extends ParallaxComponent {
   final String color;
   BackgroundTile({this.color = 'Gray', super.position});
 
-  final double scrollSpeed = 40;
+  final double scrollSpeed = 10;
 
   @override
   FutureOr<void> onLoad() async {
