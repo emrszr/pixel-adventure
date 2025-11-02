@@ -9,19 +9,23 @@
     ],
     "fileStates": {
         "Level-01.tmx": {
-            "scale": 1.3236,
-            "selectedLayer": 0,
+            "scale": 1.7493,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": -55.15261408280446,
-                "y": 140.52583862194018
+                "x": -16.29223117818556,
+                "y": 97.46755845195221
             }
         },
         "Pixel Adventure.tsx": {
+            "scaleInDock": 1.6455,
+            "scaleInEditor": 1
+        },
+        "supermarket.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
         }
     },
-    "last.imagePath": "/Users/macpro/Documents/dev/flutter/lesson/pixel_adventure/assets/images/Terrain",
+    "last.imagePath": "/Users/macpro/Downloads/Supermarket Asset Pack",
     "map.height": 23,
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
@@ -34,6 +38,7 @@
     "property.type": "int",
     "recentFiles": [
         "Level-01.tmx",
+        "supermarket.tsx",
         "Pixel Adventure.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
