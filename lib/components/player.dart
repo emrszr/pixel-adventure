@@ -13,7 +13,7 @@ import 'package:pixel_adventure/components/saw.dart';
 import 'package:pixel_adventure/components/utils.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 
-enum PlayerState { idle, running, jumping, falling, hit, appearing, disappearing }
+enum PlayerState { idle, running, jumping, doubleJumping, wallJump, falling, hit, appearing, disappearing }
 
 class Player extends SpriteAnimationGroupComponent
     with HasGameReference<PixelAdventure>, KeyboardHandler, CollisionCallbacks {
@@ -25,6 +25,8 @@ class Player extends SpriteAnimationGroupComponent
   late final SpriteAnimation idleAnimation;
   late final SpriteAnimation runningAnimation;
   late final SpriteAnimation jumpingAnimation;
+  late final SpriteAnimation doubleJumpingAnimation;
+  late final SpriteAnimation wallJumpAnimation;
   late final SpriteAnimation fallingAnimation;
   late final SpriteAnimation hitAnimation;
   late final SpriteAnimation appearingAnimation;
@@ -39,6 +41,10 @@ class Player extends SpriteAnimationGroupComponent
   Vector2 velocity = Vector2.zero();
   bool isOnGround = false;
   bool hasJumped = false;
+  bool canDoubleJump = false;
+  bool isTouchingWall = false;
+  bool isWallSliding = false;
+
   bool gotHit = false;
   bool reachedCheckpoint = false;
 
@@ -76,6 +82,8 @@ class Player extends SpriteAnimationGroupComponent
     idleAnimation = _stripeAnimation("Idle", 11);
     runningAnimation = _stripeAnimation("Run", 12);
     jumpingAnimation = _stripeAnimation("Jump", 1);
+    doubleJumpingAnimation = _stripeAnimation("Double Jump", 6);
+    wallJumpAnimation = _stripeAnimation("Wall Jump", 5);
     fallingAnimation = _stripeAnimation("Fall", 1);
     hitAnimation = _stripeAnimation("Hit", 7)..loop = false;
     appearingAnimation = _specialStripeAnimation("Appearing", 7);
@@ -86,6 +94,8 @@ class Player extends SpriteAnimationGroupComponent
       PlayerState.idle: idleAnimation,
       PlayerState.running: runningAnimation,
       PlayerState.jumping: jumpingAnimation,
+      PlayerState.doubleJumping: doubleJumpingAnimation,
+      PlayerState.wallJump: wallJumpAnimation,
       PlayerState.falling: fallingAnimation,
       PlayerState.hit: hitAnimation,
       PlayerState.appearing: appearingAnimation,
@@ -122,7 +132,7 @@ class Player extends SpriteAnimationGroupComponent
     horizontalMovement += isLeftPressed ? -1 : 0;
     horizontalMovement += isRightPressed ? 1 : 0;
 
-    hasJumped = keysPressed.contains(LogicalKeyboardKey.space);
+    hasJumped = keysPressed.contains(LogicalKeyboardKey.space) || keysPressed.contains(LogicalKeyboardKey.keyW);
 
     return super.onKeyEvent(event, keysPressed);
   }
@@ -139,7 +149,13 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _updatePlayermovement(double dt) {
-    if (hasJumped && isOnGround) _playerJump(dt);
+    if (hasJumped) {
+      if (isOnGround) {
+        _playerJump(dt);
+      } else if (canDoubleJump) {
+        _playerDoubleJump(dt);
+      }
+    }
     velocity.x = horizontalMovement * moveSpeed;
     position.x += velocity.x * dt;
   }
@@ -150,43 +166,63 @@ class Player extends SpriteAnimationGroupComponent
     position.y += velocity.y * dt;
     hasJumped = false;
     isOnGround = false;
+    canDoubleJump = true;
+  }
+
+  void _playerDoubleJump(double dt) async {
+    if (game.playSounds) FlameAudio.play('jump.wav', volume: game.soundVolume);
+    velocity.y = -_jumpForce;
+    position.y += velocity.y * dt;
+    hasJumped = false;
+    canDoubleJump = false;
+    current = PlayerState.doubleJumping;
   }
 
   void _updatePlayerState() {
     PlayerState playerState = PlayerState.idle;
-    if (velocity.x < 0 && scale.x > 0) {
+    if (isWallSliding) {
+      playerState = PlayerState.wallJump;
+    } else if (velocity.x < 0 && scale.x > 0) {
       flipHorizontallyAroundCenter();
     } else if (velocity.x > 0 && scale.x < 0) {
       flipHorizontallyAroundCenter();
     }
 
-    // if player reached max velocity, can jump
-    if (velocity.y == _terminalVelocity) isOnGround = true;
-
     // Running
     if (velocity.x > 0 || velocity.x < 0) playerState = PlayerState.running;
 
     // falling
-    if (velocity.y > 0) playerState = PlayerState.falling;
+    if (velocity.y > 0) {
+      if (!isWallSliding) playerState = PlayerState.falling;
+    }
 
     // jumping
-    if (velocity.y < 0) playerState = PlayerState.jumping;
+    if (velocity.y < 0) {
+      if (current == PlayerState.doubleJumping) {
+        playerState = PlayerState.doubleJumping;
+      } else {
+        playerState = PlayerState.jumping;
+      }
+    }
 
     current = playerState;
   }
 
   void _checkHorizontalCollisions() {
+    isTouchingWall = false;
     for (final block in collisionBlocks) {
       if (!block.isPlatform) {
         if (checkCollision(this, block)) {
           if (velocity.x > 0) {
             velocity.x = 0;
             position.x = block.x - hitbox.offsetX - hitbox.width;
+            isTouchingWall = true;
             break;
           }
           if (velocity.x < 0) {
             velocity.x = 0;
             position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
+            isTouchingWall = true;
             break;
           }
         }
@@ -195,8 +231,20 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _applyGravity(double dt) {
-    velocity.y += _gravity;
-    velocity.y = velocity.y.clamp(-_jumpForce, _terminalVelocity);
+    if (isOnGround) {
+      isWallSliding = false;
+    }
+
+    if (isTouchingWall && !isOnGround && velocity.y > 0) {
+      isWallSliding = true;
+      velocity.y += _gravity / 8;
+      velocity.y = velocity.y.clamp(-_jumpForce / 8, _terminalVelocity / 8);
+    } else {
+      isWallSliding = false;
+      velocity.y += _gravity;
+      velocity.y = velocity.y.clamp(-_jumpForce, _terminalVelocity);
+    }
+
     position.y += velocity.y * dt;
   }
 
@@ -208,6 +256,7 @@ class Player extends SpriteAnimationGroupComponent
             velocity.y = 0;
             position.y = block.y - hitbox.height - hitbox.offsetY;
             isOnGround = true;
+            canDoubleJump = false;
             break;
           }
         }
@@ -217,6 +266,7 @@ class Player extends SpriteAnimationGroupComponent
             velocity.y = 0;
             position.y = block.y - hitbox.height - hitbox.offsetY;
             isOnGround = true;
+            canDoubleJump = false;
             break;
           }
           if (velocity.y < 0) {
@@ -238,6 +288,7 @@ class Player extends SpriteAnimationGroupComponent
     await animationTicker?.completed;
     animationTicker?.reset();
 
+    game.cam?.viewfinder.position = Vector2.zero();
     scale.x = 1;
     position = startingPosition - Vector2.all(32);
     current = PlayerState.appearing;

@@ -7,13 +7,30 @@
     "expandedProjectPaths": [
         "."
     ],
+    "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "Level-01.tmx": {
-            "scale": 1.7493,
-            "selectedLayer": 1,
+            "expandedObjectLayers": [
+                3,
+                2
+            ],
+            "scale": 1.1604,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": -16.29223117818556,
-                "y": 97.46755845195221
+                "x": 752.7576697690452,
+                "y": 280.0758359186487
+            }
+        },
+        "Level-01_.tmx": {
+            "expandedObjectLayers": [
+                3,
+                2
+            ],
+            "scale": 1.2452,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 407.5650497911982,
+                "y": 238.51590106007066
             }
         },
         "Pixel Adventure.tsx": {
@@ -32,15 +49,18 @@
     "map.tileWidth": 16,
     "map.width": 40,
     "openFiles": [
-        "Level-01.tmx"
+        "Level-01.tmx",
+        "Level-01_.tmx"
     ],
     "project": "Pixed Adventure.tiled-project",
     "property.type": "int",
     "recentFiles": [
+        "Level-01_.tmx",
         "Level-01.tmx",
         "supermarket.tsx",
         "Pixel Adventure.tsx"
     ],
+    "resizeMap.removeObjects": true,
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
         "height": 16,
